@@ -1,4 +1,4 @@
-// function to get all games from the API
+// Function to get all games from the API
 async function getGames() {
     try {
         const response = await axios.get('http://127.0.0.1:5000/games');
@@ -9,9 +9,10 @@ async function getGames() {
             gamesList.innerHTML += `
                 <div class="game-card">
                     <h3>${game.title}</h3>
-                    <p>Author: ${game.author}</p>
-                    <p>Year: ${game.year_published}</p>
-                    <p>Type: ${game.types}</p>
+                    <p>Genre: ${game.genre}</p>
+                    <p>Price: $${game.price}</p>
+                    <p>Quantity: ${game.quantity}</p>
+                    <p>Loan Status: ${game.loan_status ? 'Loaned' : 'Available'}</p>
                 </div>
             `;
         });
@@ -21,30 +22,30 @@ async function getGames() {
     }
 }
 
-// function to add a new game to the database
+// Function to add a new game
 async function addGame() {
     const title = document.getElementById('game-title').value;
-    const author = document.getElementById('game-author').value;
-    const year_published = document.getElementById('game-year-published').value;
-    const types = document.getElementById('game-type').value;
+    const genre = document.getElementById('game-genre').value;
+    const price = document.getElementById('game-price').value;
+    const quantity = document.getElementById('game-quantity').value;
 
     try {
         await axios.post('http://127.0.0.1:5000/games', {
             title: title,
-            author: author,
-            year_published: year_published,
-            types: types
+            genre: genre,
+            price: price,
+            quantity: quantity
         });
-        
+
         // Clear form fields
         document.getElementById('game-title').value = '';
-        document.getElementById('game-author').value = '';
-        document.getElementById('game-year-published').value = '';
-        document.getElementById('game-type').value = '';
+        document.getElementById('game-genre').value = '';
+        document.getElementById('game-price').value = '';
+        document.getElementById('game-quantity').value = '';
 
         // Refresh the games list
         getGames();
-        
+
         alert('Game added successfully!');
     } catch (error) {
         console.error('Error adding game:', error);
@@ -52,5 +53,5 @@ async function addGame() {
     }
 }
 
-// Load all games when page loads
+// Load all games when the page loads
 document.addEventListener('DOMContentLoaded', getGames);
