@@ -28,6 +28,7 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
+
 # Add admin route
 @app.route('/add-admin', methods=['POST'])
 def add_admin():
@@ -47,7 +48,7 @@ def add_admin():
 
     return jsonify({'message': 'Admin added successfully'}), 201
 
-# Route to add a new game
+
 @app.route('/games', methods=['POST'])
 def add_game():
     data = request.json
