@@ -1,41 +1,74 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from datetime import datetime
 from models import db
 from models.admin import Admin
 from models.game import Game
 from models.loan import Loan
 from models.customer import Customer
 
-app = Flask(__name__)  # Create a Flask instance
-CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
-db.init_app(app)  # Initialize the database with the Flask app
+db.init_app(app)
+
+# Login route
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # Query the Admin table for the provided username
+    admin = Admin.query.filter_by(username=username).first()
+
+    if admin and admin.password == password:  # Check if the admin exists and the password matches
+        return jsonify({'message': 'Login successful'}), 200
+    else:
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+# Add admin route
+@app.route('/add-admin', methods=['POST'])
+def add_admin():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # Check if the admin already exists
+    existing_admin = Admin.query.filter_by(username=username).first()
+    if existing_admin:
+        return jsonify({'error': 'Admin already exists'}), 400
+
+    # Create a new admin
+    new_admin = Admin(username=username, password=password)
+    db.session.add(new_admin)
+    db.session.commit()
+
+    return jsonify({'message': 'Admin added successfully'}), 201
 
 # Route to add a new game
 @app.route('/games', methods=['POST'])
 def add_game():
-    data = request.json  # Parse JSON data from the request body
+    data = request.json
     new_game = Game(
         title=data['title'],
         genre=data['genre'],
         price=data['price'],
         quantity=data['quantity']
     )
-    db.session.add(new_game)  # Add the new game to the database session
-    db.session.commit()  # Commit the session to save the game in the database
+    db.session.add(new_game)
+    db.session.commit()
     return jsonify({'message': 'Game added to database.'}), 201
 
 # Route to get all games
 @app.route('/games', methods=['GET'])
 def get_games():
     try:
-        games = Game.query.all()  # Get all games from the database
+        games = Game.query.all()
         games_list = []
 
-        for game in games:  # Loop through each game
+        for game in games:
             game_data = {
                 'id': game.id,
                 'title': game.title,
@@ -60,9 +93,9 @@ def get_games():
 # Route to delete a game
 @app.route('/games/<int:id>', methods=['DELETE'])
 def delete_game(id):
-    game = Game.query.get_or_404(id)  # Find the game by ID
-    db.session.delete(game)  # Delete the game
-    db.session.commit()  # Commit the session
+    game = Game.query.get_or_404(id)
+    db.session.delete(game)
+    db.session.commit()
     return jsonify({'message': 'Game deleted successfully.'}), 200
 
 # Route to register a new customer
@@ -143,7 +176,7 @@ def return_loan(id):
     game.quantity += 1
 
     # Set return date
-    loan.return_date = datetime.utcnow()
+    loan.return_date = db.func.current_timestamp()
     db.session.commit()
 
     return jsonify({
@@ -179,5 +212,5 @@ def get_loans():
 # Run the application
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create all database tables defined in your models
-    app.run(debug=True)  # Start the Flask application in debug mode
+        db.create_all()  # Create all database tables
+    app.run(debug=True)

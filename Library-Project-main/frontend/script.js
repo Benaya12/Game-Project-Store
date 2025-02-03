@@ -1,4 +1,35 @@
-// Function to get all games from the API
+// Function to handle login
+async function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/login', {
+            username: username,
+            password: password
+        });
+
+        if (response.status === 200) {
+            alert('Login successful!');
+            // Show the main section after successful login
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('main-section').classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error logging in:', error);
+        alert('Invalid username or password');
+    }
+}
+
+// Function to handle logout
+function logout() {
+    // Clear any session data (if applicable)
+    // Redirect to the login page
+    document.getElementById('auth-section').classList.remove('hidden');
+    document.getElementById('main-section').classList.add('hidden');
+}
+
+// Function to get all games
 async function getGames() {
     try {
         const response = await axios.get('http://127.0.0.1:5000/games');
