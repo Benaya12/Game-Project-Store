@@ -56,24 +56,6 @@ def check_session():
     else:
         return jsonify({'error': 'Admin is not logged in'}), 401
 
-# Add Admin Route
-@app.route('/add-admin', methods=['POST'])
-def add_admin():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    existing_admin = Admin.query.filter_by(username=username).first()
-    if existing_admin:
-        return jsonify({'error': 'Admin already exists'}), 400
-
-    hashed_password = generate_password_hash(password, method='sha256')
-    new_admin = Admin(username=username, password=hashed_password)
-    db.session.add(new_admin)
-    db.session.commit()
-
-    return jsonify({'message': 'Admin added successfully'}), 201
-
 # Add Game Route
 @app.route('/games', methods=['POST'])
 def add_game():
