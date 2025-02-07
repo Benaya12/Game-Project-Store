@@ -19,6 +19,7 @@ async function login() {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('main-section').classList.remove('hidden');
             getGames();
+            getLoanedGames();  // Load loaned games on login
         }
     } catch (error) {
         const message = error.response?.data?.error || 'Login failed. Please try again.';
@@ -32,6 +33,7 @@ function checkLoginStatus() {
     document.getElementById('main-section').classList.toggle('hidden', !isLoggedIn);
     if (isLoggedIn) {
         getGames();
+        getLoanedGames();  // Load loaned games if already logged in
     }
 }
 
@@ -82,6 +84,57 @@ async function addGame() {
     } catch (error) {
         console.error('Error adding game:', error);
         alert('Failed to add game');
+    }
+}
+
+async function addLoan() {
+    const gameId = document.getElementById('loan-game-id').value;
+    const customerId = document.getElementById('loan-customer-id').value;
+
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/loans', {
+            game_id: gameId,
+            customer_id: customerId
+        });
+
+        alert('Game loaned successfully!');
+        getLoanedGames();  // Refresh the loaned games list
+    } catch (error) {
+        console.error('Error loaning game:', error);
+        alert('Failed to loan game');
+    }
+}
+
+async function returnLoan(loanId) {
+    try {
+        const response = await axios.put(`http://127.0.0.1:5000/loans/${loanId}/return`);
+        alert('Game returned successfully!');
+        getLoanedGames();  // Refresh the loaned games list
+    } catch (error) {
+        console.error('Error returning game:', error);
+        alert('Failed to return game');
+    }
+}
+
+async function getLoanedGames() {
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/loans');
+        const loanedGamesList = document.getElementById('loaned-games-list');
+        loanedGamesList.innerHTML = '';
+
+        response.data.loaned_games.forEach(loan => {
+            loanedGamesList.innerHTML += `
+                <div class="loan-card">
+                    <h3>${loan.game_title}</h3>
+                    <p>Loaned by: ${loan.customer_name}</p>
+                    <p>Loan Date: ${new Date(loan.loan_date).toLocaleDateString()}</p>
+                    <button onclick="returnLoan(${loan.loan_id})">Return Game</button>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error('Error fetching loaned games:', error);
+        alert('Failed to load loaned games');
     }
 }
 
