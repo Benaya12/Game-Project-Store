@@ -84,5 +84,73 @@ async function addGame() {
     }
 }
 
+// Function to delete a game
+async function deleteGame(gameId) {
+    try {
+        await axios.delete(`http://127.0.0.1:5000/games/${gameId}`);
+        getGames();
+        alert('Game deleted successfully!');
+    } catch (error) {
+        console.error('Error deleting game:', error);
+        alert('Failed to delete game');
+    }
+}
+
+// Function to register a new customer
+async function addCustomer() {
+    const name = document.getElementById('customer-name').value;
+    const email = document.getElementById('customer-email').value;
+    const phone = document.getElementById('customer-phone').value;
+
+    try {
+        await axios.post('http://127.0.0.1:5000/customers', {
+            name: name,
+            email: email,
+            phone: phone
+        });
+
+        // Clear form fields
+        document.getElementById('customer-name').value = '';
+        document.getElementById('customer-email').value = '';
+        document.getElementById('customer-phone').value = '';
+
+        alert('Customer added successfully!');
+    } catch (error) {
+        console.error('Error adding customer:', error);
+        alert('Failed to add customer');
+    }
+}
+
+// Function to loan a game to a customer
+async function createLoan() {
+    const gameId = document.getElementById('loan-game-id').value;
+    const customerId = document.getElementById('loan-customer-id').value;
+
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/loans', {
+            game_id: gameId,
+            customer_id: customerId
+        });
+
+        alert('Game loaned successfully!');
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error loaning game:', error);
+        alert('Failed to loan game');
+    }
+}
+
+// Function to return a loaned game
+async function returnLoan(loanId) {
+    try {
+        const response = await axios.post(`http://127.0.0.1:5000/loans/${loanId}/return`);
+        alert('Game returned successfully!');
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error returning loan:', error);
+        alert('Failed to return game');
+    }
+}
+
 // Load all games when the page loads
 document.addEventListener('DOMContentLoaded', getGames);

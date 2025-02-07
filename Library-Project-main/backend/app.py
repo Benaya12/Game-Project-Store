@@ -28,7 +28,6 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
-
 # Add admin route
 @app.route('/add-admin', methods=['POST'])
 def add_admin():
@@ -48,19 +47,24 @@ def add_admin():
 
     return jsonify({'message': 'Admin added successfully'}), 201
 
-
+# Add game route
 @app.route('/games', methods=['POST'])
 def add_game():
     data = request.json
-    new_game = Game(
-        title=data['title'],
-        genre=data['genre'],
-        price=data['price'],
-        quantity=data['quantity']
-    )
-    db.session.add(new_game)
-    db.session.commit()
-    return jsonify({'message': 'Game added to database.'}), 201
+    try:
+        new_game = Game(
+            title=data['title'],
+            genre=data['genre'],
+            price=data['price'],
+            quantity=data['quantity']
+        )
+        db.session.add(new_game)
+        db.session.commit()
+        return jsonify({'message': 'Game added to database.'}), 201
+    except KeyError as e:
+        return jsonify({'error': f'Missing required field: {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': 'Failed to add game', 'message': str(e)}), 500
 
 # Route to get all games
 @app.route('/games', methods=['GET'])
@@ -131,6 +135,14 @@ def get_customers():
         'message': 'Customers retrieved successfully',
         'customers': customers_list
     }), 200
+
+# Route to delete a customer
+@app.route('/customers/<int:id>', methods=['DELETE'])
+def delete_customer(id):
+    customer = Customer.query.get_or_404(id)
+    db.session.delete(customer)
+    db.session.commit()
+    return jsonify({'message': 'Customer deleted successfully.'}), 200
 
 # Route to loan a game to a customer
 @app.route('/loans', methods=['POST'])
