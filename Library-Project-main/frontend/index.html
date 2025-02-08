@@ -28,7 +28,8 @@
           <button onclick="logout()">Logout</button>
         </div>
 
-        <div class="books-section">
+        <!-- Games Section -->
+        <div class="games-section">
           <h2>Add New Game</h2>
           <div class="form-group">
             <input type="text" id="game-title" placeholder="Title" />
@@ -39,10 +40,24 @@
           </div>
 
           <h2>All Games</h2>
-          <div id="games-list" class="books-grid"></div>
+          <div id="games-list" class="games-grid"></div>
 
           <h2>Loaned Games</h2>
-          <div id="loaned-games-list" class="books-grid"></div>
+          <div id="loaned-games-list" class="games-grid"></div>
+        </div>
+
+        <!-- Customers Section -->
+        <div class="customers-section">
+          <h2>Add New Customer</h2>
+          <div class="form-group">
+            <input type="text" id="customer-name" placeholder="Name" />
+            <input type="email" id="customer-email" placeholder="Email" />
+            <input type="tel" id="customer-phone" placeholder="Phone" />
+            <button onclick="addCustomer()">Add Customer</button>
+          </div>
+
+          <h2>All Customers</h2>
+          <div id="customers-list" class="games-grid"></div>
         </div>
       </div>
     </div>

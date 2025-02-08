@@ -85,6 +85,21 @@ def login():
     else:
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
 
+
+@app.route('/games/<int:game_id>', methods=['DELETE'])
+def delete_game(game_id):
+    try:
+        game = Game.query.get_or_404(game_id)
+        db.session.delete(game)
+        db.session.commit()
+        return jsonify({'message': 'Game deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to delete game',
+            'message': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create all database tables defined in your  models(check the models folder)

@@ -1,4 +1,8 @@
-// function to get all games from the API
+// Hide everything until we confirm login state
+document.documentElement.style.visibility = 'hidden';
+document.body.style.display = 'none';
+
+// Function to get all games from the API
 async function getGames() {
     try {
         const response = await axios.get('http://127.0.0.1:5000/games');
@@ -6,14 +10,16 @@ async function getGames() {
         gamesList.innerHTML = ''; // Clear existing list
 
         response.data.games.forEach(game => {
-            gamesList.innerHTML += `
-                <div class="game-card">
-                    <h3>${game.title}</h3>
-                    <p>Developer: ${game.developer}</p>
-                    <p>Year: ${game.year_published}</p>
-                    <p>Genre: ${game.generes}</p>
-                </div>
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card';
+            gameCard.innerHTML = `
+                <h3>${game.title}</h3>
+                <p>Developer: ${game.developer}</p>
+                <p>Year: ${game.year_published}</p>
+                <p>Genre: ${game.genres}</p>
+                <button class="delete-btn" onclick="deleteGame(${game.id})">Delete Game</button>
             `;
+            gamesList.appendChild(gameCard);
         });
     } catch (error) {
         console.error('Error fetching games:', error);
@@ -21,34 +27,52 @@ async function getGames() {
     }
 }
 
-// function to add a new game to the database
+// Function to add a new game to the database
 async function addGame() {
     const title = document.getElementById('game-title').value;
     const developer = document.getElementById('game-developer').value;
-    const year_published = document.getElementById('game-year-published').value;
-    const generes = document.getElementById('game-genres').value;
+    const year_published = parseInt(document.getElementById('game-year').value);
+    const genres = document.getElementById('game-genre').value;
 
     try {
         await axios.post('http://127.0.0.1:5000/games', {
-            title: title,
-            developer: developer,
-            year_published: year_published,
-            generes: generes
+            title,
+            developer,
+            year_published,
+            genres
         });
-        
-        // Clear form fields
+
+        // Save login state before refresh
+        sessionStorage.setItem('isLoggedIn', 'true');
+
+        // Refresh the games list without reloading the page
+        getGames();
+
+        // Clear the form
         document.getElementById('game-title').value = '';
         document.getElementById('game-developer').value = '';
-        document.getElementById('game-year-published').value = '';
-        document.getElementById('game-genres').value = '';
+        document.getElementById('game-year').value = '';
+        document.getElementById('game-genre').value = '';
 
-        // Refresh the games list
-        getGames();
-        
-        alert('Game added successfully!');
     } catch (error) {
         console.error('Error adding game:', error);
         alert('Failed to add game');
+    }
+}
+
+// Function to delete a game
+async function deleteGame(gameId) {
+    if (!confirm('Are you sure you want to delete this game?')) {
+        return;
+    }
+
+    try {
+        await axios.delete(`http://127.0.0.1:5000/games/${gameId}`);
+        // Refresh the games list after successful deletion
+        getGames();
+    } catch (error) {
+        console.error('Error deleting game:', error);
+        alert('Failed to delete game');
     }
 }
 
@@ -64,82 +88,44 @@ async function login() {
         });
 
         if (response.data.success) {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('main-section').classList.remove('hidden');
-            getGames();
+            sessionStorage.setItem('isLoggedIn', 'true');
+            showMainSection();
         } else {
-
             alert('Invalid credentials');
         }
     } catch (error) {
-
         console.error('Error logging in:', error);
         alert('Failed to login');
     }
 }
 
-//Function to handle user registration
-
 // Function to handle logout
 function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    showAuthSection();
+}
+
+// Show main section (games) and fetch games
+function showMainSection() {
+    document.getElementById('auth-section').classList.add('hidden');
+    document.getElementById('main-section').classList.remove('hidden');
+    getGames();
+}
+
+// Show authentication (login) section
+function showAuthSection() {
     document.getElementById('auth-section').classList.remove('hidden');
     document.getElementById('main-section').classList.add('hidden');
 }
 
-// Load all games when page loads
-document.addEventListener('DOMContentLoaded', getGames);
-
-// Function to add a new game to the database
-async function addGame() {
-    const title = document.getElementById('game-title').value;
-    const genre = document.getElementById('game-genre').value;  // Corrected from 'generes' to 'genre'
-    const price = parseFloat(document.getElementById('game-price').value);  // Ensure price is a float
-    const quantity = parseInt(document.getElementById('game-quantity').value, 10);  // Ensure quantity is an integer
-
-    try {
-        await axios.post('http://127.0.0.1:5000/games', {
-            title: title,
-            genre: genre,  // Corrected from 'generes' to 'genre'
-            price: price,
-            quantity: quantity
-        });
-
-        // Clear form fields
-        document.getElementById('game-title').value = '';
-        document.getElementById('game-genre').value = '';
-        document.getElementById('game-price').value = '';
-        document.getElementById('game-quantity').value = '';
-
-        // Refresh the games list
-        getGames();
-        
-        alert('Game added successfully!');
-    } catch (error) {
-        console.error('Error adding game:', error);
-        alert('Failed to add game');
+// Initialize the page
+document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        showMainSection();
+    } else {
+        showAuthSection();
     }
-}
-
-
-// Function to get all games from the API
-async function getGames() {
-    try {
-        const response = await axios.get('http://127.0.0.1:5000/games');
-        const gamesList = document.getElementById('games-list');
-        gamesList.innerHTML = ''; // Clear existing list
-
-        response.data.games.forEach(game => {
-            gamesList.innerHTML += `
-                <div class="game-card">
-                    <h3>${game.title}</h3>
-                    <p>Genre: ${game.genre}</p>
-                    <p>Price: $${game.price.toFixed(2)}</p>
-                    <p>Quantity: ${game.quantity}</p>
-                </div>
-            `;
-        });
-    } catch (error) {
-        console.error('Error fetching games:', error);
-        alert('Failed to load games');
-    }
-}
+    // Now reveal the page smoothly
+    document.documentElement.style.visibility = 'visible';
+    document.body.style.display = 'block';
+});

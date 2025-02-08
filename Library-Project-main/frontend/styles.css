@@ -82,15 +82,15 @@ body {
     background-color: #2980b9;
 }
 
-/* Books Section */
-.books-section {
+/* Games Section */
+.games-section {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.books-section h2 {
+.games-section h2 {
     font-size: 1.5rem;
     margin-bottom: 20px;
     color: #2c3e50;
@@ -125,8 +125,8 @@ body {
     background-color: #27ae60;
 }
 
-/* Books Grid */
-.books-grid {
+/* Games Grid */
+.games-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
@@ -139,6 +139,8 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
 }
 
 .game-card:hover {
@@ -154,6 +156,24 @@ body {
 .game-card p {
     margin: 5px 0;
     color: #555;
+}
+
+/* Delete Button */
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: auto;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
 }
 
 /* Responsive Design */
@@ -174,4 +194,51 @@ body {
     .header button {
         margin-top: 10px;
     }
+}
+
+/* Customer Section */
+#customers-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+#customers-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+#customers-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.customer-card {
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-card:hover {
+    transform: translateY(-5px);
+}
+
+.customer-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.customer-card p {
+    margin: 5px 0;
+    color: #555;
 }
