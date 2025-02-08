@@ -13,7 +13,9 @@ async function getGames() {
             const gameCard = document.createElement('div');
             gameCard.className = 'game-card';
             gameCard.innerHTML = `
+
                 <h3>${game.title}</h3>
+                <p>Id: ${game.id}</p>
                 <p>Genre: ${game.genre}</p>
                 <p>Price: $${game.price}</p>
                 <p>Quantity: ${game.quantity}</p>
@@ -128,56 +130,130 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.display = 'block';
 });
 
-function addCustomer() {
+// Hide everything until we confirm the login state
+document.documentElement.style.visibility = 'hidden';
+document.body.style.display = 'none';
+
+async function getCustomers() {
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/api/customers');  // Updated the URL to match the correct API endpoint
+        const customersList = document.getElementById('customers-list');
+        customersList.innerHTML = '';  // Clear the existing list
+
+        response.data.forEach(customer => {
+            const customerCard = document.createElement('div');
+            customerCard.className = 'customer-card';
+            customerCard.innerHTML = `
+                <h3>${customer.name}</h3>
+                <p>Id: ${customer.id}</p>
+                <p>Email: ${customer.email}</p>
+                <p>Phone: ${customer.phone}</p>
+                <button class="delete-btn" onclick="deleteCustomer(${customer.id})">Delete</button>
+            `;
+            customersList.appendChild(customerCard);
+        });
+    } catch (error) {
+        console.error('Error fetching customers:', error);
+        alert('Failed to load customers');
+    }
+}
+
+
+async function addCustomer() {
     const name = document.getElementById('customer-name').value;
     const email = document.getElementById('customer-email').value;
     const phone = document.getElementById('customer-phone').value;
-  
-    if (name && email && phone) {
-      const customer = { name, email, phone };
-      // Save the customer (e.g., to localStorage or a backend API)
-      saveCustomer(customer);
-      // Clear the form
-      document.getElementById('customer-name').value = '';
-      document.getElementById('customer-email').value = '';
-      document.getElementById('customer-phone').value = '';
-      // Refresh the customers list
-      displayCustomers();
-    } else {
-      alert('Please fill in all fields.');
+
+    try {
+        await axios.post('http://127.0.0.1:5000/api/customers', {  // Updated the URL to match the correct API endpoint
+            name,
+            email,
+            phone
+        });
+
+        // Refresh the customers list after adding the new customer
+        getCustomers();
+
+        // Clear the form fields
+        document.getElementById('customer-name').value = '';
+        document.getElementById('customer-email').value = '';
+        document.getElementById('customer-phone').value = '';
+    } catch (error) {
+        console.error('Error adding customer:', error);
+        alert('Failed to add customer');
     }
-  }
-  
-  function saveCustomer(customer) {
-    // Example: Save to localStorage
-    const customers = JSON.parse(localStorage.getItem('customers')) || [];
-    customers.push(customer);
-    localStorage.setItem('customers', JSON.stringify(customers));
-  }
-  
-  function displayCustomers() {
-    const customers = JSON.parse(localStorage.getItem('customers')) || [];
-    const customersList = document.getElementById('customers-list');
-    customersList.innerHTML = '';
-  
-    customers.forEach(customer => {
-      const customerCard = document.createElement('div');
-      customerCard.className = 'customer-card';
-      customerCard.innerHTML = `
-        <h3>${customer.name}</h3>
-        <p>Email: ${customer.email}</p>
-        <p>Phone: ${customer.phone}</p>
-        <button class="delete-btn" onclick="deleteCustomer('${customer.email}')">Delete</button>
-      `;
-      customersList.appendChild(customerCard);
-    });
-  }
-  
-  function deleteCustomer(email) {
-    let customers = JSON.parse(localStorage.getItem('customers')) || [];
-    customers = customers.filter(customer => customer.email !== email);
-    localStorage.setItem('customers', JSON.stringify(customers));
-    displayCustomers();
-  }
+}
+
+// Function to delete a customer
+async function deleteCustomer(customerId) {
+    if (!confirm('Are you sure you want to delete this customer?')) {
+        return;
+    }
+
+    try {
+        await axios.delete(`http://127.0.0.1:5000/customers/${customerId}`);
+        // Refresh the customers list after successful deletion
+        getCustomers();
+    } catch (error) {
+        console.error('Error deleting customer:', error);
+        alert('Failed to delete customer');
+    }
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', () => {
+    getCustomers(); // Fetch and display customers when the page loads
+    // Reveal the page smoothly after everything is ready
+    document.documentElement.style.visibility = 'visible';
+    document.body.style.display = 'block';
+});
+
   
   // Call displayCustomers() when the page loads or after login
+  function loanGame() {
+    const gameId = document.getElementById("loan-game-id").value;
+    const customerId = document.getElementById("loan-customer-id").value;
+
+    if (!gameId || !customerId) {
+        alert("Please enter both Game ID and Customer ID.");
+        return;
+    }
+
+    axios.post("/loan", {
+        game_id: gameId,
+        customer_id: customerId
+    })
+    .then(response => {
+        alert(response.data.message || "Game successfully loaned!");
+        document.getElementById("loan-game-id").value = "";
+        document.getElementById("loan-customer-id").value = "";
+        fetchLoanedGames(); // Refresh loaned games
+    })
+    .catch(error => {
+        console.error("Loan Error:", error.response ? error.response.data : error);
+        alert(error.response?.data?.error || "Error loaning game. Please try again.");
+    });
+}
+
+function fetchLoans() {
+    axios.get("/loans")
+    .then(response => {
+        const loanList = document.getElementById("loan-list");
+        loanList.innerHTML = "";
+        response.data.forEach(loan => {
+            const loanItem = document.createElement("div");
+            loanItem.classList.add("loan-card");
+            loanItem.innerHTML = `
+                <p><strong>Loan ID:</strong> ${loan.id}</p>
+                <p><strong>Game ID:</strong> ${loan.game_id}</p>
+                <p><strong>Customer ID:</strong> ${loan.customer_id}</p>
+                <p><strong>Loan Date:</strong> ${loan.loan_date}</p>
+                <p><strong>Return Date:</strong> ${loan.return_date || "Not specified"}</p>
+            `;
+            loanList.appendChild(loanItem);
+        });
+    })
+    .catch(error => console.error("Error fetching loans:", error));
+}
+
+

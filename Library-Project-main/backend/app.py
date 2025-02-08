@@ -176,6 +176,44 @@ def not_found(error):
 def bad_request(error):
     return jsonify({'error': str(error)}), 400
 
+
+@app.route('/loan', methods=['POST'])
+def loan_game():
+    data = request.json
+    game_id = data.get('game_id')
+    customer_id = data.get('customer_id')
+
+    if not game_id or not customer_id:
+        return jsonify({"error": "Missing game_id or customer_id"}), 400
+
+    game = Game.query.filter_by(id=game_id).first()
+    if not game or game.quantity < 1:
+        return jsonify({"error": "Game not available"}), 400
+
+    # Loan game
+    new_loan = Loan(game_id=game_id, customer_id=customer_id)
+    game.quantity -= 1  # Reduce stock
+    db.session.add(new_loan)
+    db.session.commit()
+
+    return jsonify({"message": "Game loaned successfully"}), 201
+
+
+@app.route('/loans', methods=['GET'])
+def get_loans():
+    loans = Loan.query.all()
+    loan_list = []
+    for loan in loans:
+        loan_list.append({
+            "id": loan.id,
+            "game_id": loan.game_id,
+            "customer_id": loan.customer_id,
+            "loan_date": loan.loan_date,
+            "return_date": loan.return_date
+        })
+    return jsonify(loan_list)
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create all database tables defined in your models (check the models folder)

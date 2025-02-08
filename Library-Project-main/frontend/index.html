@@ -18,7 +18,7 @@
             </form>
         </div>
 
-        <!-- Main Section (Hidden by Default) -->
+        <!-- Main Section -->
         <div id="main-section" class="hidden">
             <div class="header">
                 <h1>Game Store Management System</h1>
@@ -38,9 +38,6 @@
 
                 <h2>All Games</h2>
                 <div id="games-list" class="games-grid"></div>
-
-                <h2>Loaned Games</h2>
-                <div id="loaned-games-list" class="games-grid"></div>
             </div>
 
             <!-- Customers Section -->
@@ -54,7 +51,29 @@
                 </div>
 
                 <h2>All Customers</h2>
-                <div id="customers-list" class="games-grid"></div>
+                <div id="customers-list" class="customers-grid"></div>
+            </div>
+
+            <!-- Loan Game Section -->
+            <div class="loan-section">
+                <h2>Loan a Game</h2>
+                <div class="form-group">
+                    <input type="number" id="loan-game-id" placeholder="Game ID" />
+                    <input type="number" id="loan-customer-id" placeholder="Customer ID" />
+                    <button onclick="loanGame()">Loan Game</button>
+                </div>
+
+                <h2>Loaned Games</h2>
+                <div id="loaned-games-list" class="games-grid"></div>
+            </div>
+
+            <!-- Return Game Section -->
+            <div class="return-section">
+                <h2>Return a Loaned Game</h2>
+                <div class="form-group">
+                    <input type="number" id="return-loan-id" placeholder="Loan ID" />
+                    <button onclick="returnGame()">Return Game</button>
+                </div>
             </div>
         </div>
     </div>
