@@ -176,33 +176,35 @@ def bad_request(error):
 
 @app.route('/loan', methods=['POST'])
 def loan_game():
-    print("🚀 Loan request received")  # Debug log
     data = request.json
-    print("📩 Received data:", data)  # Print received data
-
     game_id = data.get('game_id')
     customer_id = data.get('customer_id')
 
     if not game_id or not customer_id:
-        print("❌ Missing game_id or customer_id")  # Debug log
         return jsonify({"error": "Missing game_id or customer_id"}), 400
 
+    # Check if the game exists
     game = Game.query.filter_by(id=game_id).first()
     if not game:
-        print("❌ Game not found")  # Debug log
         return jsonify({"error": "Game not found"}), 404
 
+    # Check if the customer exists
+    customer = Customer.query.filter_by(id=customer_id).first()
+    if not customer:
+        return jsonify({"error": "Customer not found"}), 404
+
+    # Ensure the game is available
     if game.quantity < 1:
-        print("❌ Game not available")  # Debug log
         return jsonify({"error": "Game not available"}), 400
 
-    # Loan game
+    # Loan the game
     new_loan = Loan(game_id=game_id, customer_id=customer_id)
-    game.quantity -= 1  # Reduce stock
     db.session.add(new_loan)
-    db.session.commit()
-    
-    print("✅ Game loaned successfully")  # Debug log
+    db.session.flush()  # Ensure loan is staged before commit
+
+    game.quantity -= 1  # Reduce stock
+    db.session.commit()  # Commit all changes together
+
     return jsonify({"message": "Game loaned successfully"}), 201
 
 @app.route('/loans', methods=['GET'])
@@ -218,6 +220,34 @@ def get_loans():
             "return_date": loan.return_date
         })
     return jsonify(loan_list)
+
+@app.route('/return', methods=['POST'])
+def return_game():
+    data = request.json
+    loan_id = data.get('loan_id')
+
+    if not loan_id:
+        return jsonify({'error': 'Loan ID is required'}), 400
+
+    loan = Loan.query.get(loan_id)
+
+    if not loan:
+        return jsonify({'error': 'Loan not found'}), 404
+
+    if loan.return_date:
+        return jsonify({'error': 'Game already returned'}), 400
+
+    # Mark loan as returned
+    loan.return_date = db.func.current_timestamp()
+
+    # Update game quantity
+    game = Game.query.get(loan.game_id)
+    if game:
+        game.quantity += 1  # Increase game stock
+
+    db.session.commit()
+
+    return jsonify({'message': 'Game returned successfully'})
 
 
 if __name__ == '__main__':

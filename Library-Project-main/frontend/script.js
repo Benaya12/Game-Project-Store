@@ -13,7 +13,6 @@ async function getGames() {
             const gameCard = document.createElement('div');
             gameCard.className = 'game-card';
             gameCard.innerHTML = `
-
                 <h3>${game.title}</h3>
                 <p>Id: ${game.id}</p>
                 <p>Genre: ${game.genre}</p>
@@ -40,15 +39,14 @@ async function addGame() {
     try {
         await axios.post('http://127.0.0.1:5000/games', {
             title,
-            genre,  // Removed 'genres' -> should be 'genre'
+            genre,
             price,
             quantity
         });
 
-        // Refresh the games list
-        getGames();
+        getGames(); // Refresh game list
 
-        // Clear the form fields
+        // Clear form fields
         document.getElementById('game-title').value = '';
         document.getElementById('game-genre').value = '';
         document.getElementById('game-price').value = '';
@@ -68,24 +66,20 @@ async function deleteGame(gameId) {
 
     try {
         await axios.delete(`http://127.0.0.1:5000/games/${gameId}`);
-        // Refresh the games list after successful deletion
-        getGames();
+        getGames(); // Refresh the games list
     } catch (error) {
         console.error('Error deleting game:', error);
         alert('Failed to delete game');
     }
 }
 
-// Function to handle user login
+// Function to handle login
 async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
     try {
-        const response = await axios.post('http://127.0.0.1:5000/login', {
-            username: username,
-            password: password
-        });
+        const response = await axios.post('http://127.0.0.1:5000/login', { username, password });
 
         if (response.data.success) {
             sessionStorage.setItem('isLoggedIn', 'true');
@@ -99,7 +93,7 @@ async function login() {
     }
 }
 
-// Function to handle logout
+// Logout function
 function logout() {
     sessionStorage.removeItem('isLoggedIn');
     showAuthSection();
@@ -110,6 +104,8 @@ function showMainSection() {
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('main-section').classList.remove('hidden');
     getGames();
+    getCustomers();
+    fetchLoans();
 }
 
 // Show authentication (login) section
@@ -118,27 +114,12 @@ function showAuthSection() {
     document.getElementById('main-section').classList.add('hidden');
 }
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        showMainSection();
-    } else {
-        showAuthSection();
-    }
-    // Now reveal the page smoothly
-    document.documentElement.style.visibility = 'visible';
-    document.body.style.display = 'block';
-});
-
-// Hide everything until we confirm the login state
-document.documentElement.style.visibility = 'hidden';
-document.body.style.display = 'none';
-
+// Function to get all customers
 async function getCustomers() {
     try {
-        const response = await axios.get('http://127.0.0.1:5000/api/customers');  // Updated the URL to match the correct API endpoint
+        const response = await axios.get('http://127.0.0.1:5000/api/customers');
         const customersList = document.getElementById('customers-list');
-        customersList.innerHTML = '';  // Clear the existing list
+        customersList.innerHTML = '';
 
         response.data.forEach(customer => {
             const customerCard = document.createElement('div');
@@ -158,23 +139,17 @@ async function getCustomers() {
     }
 }
 
-
+// Function to add a new customer
 async function addCustomer() {
     const name = document.getElementById('customer-name').value;
     const email = document.getElementById('customer-email').value;
     const phone = document.getElementById('customer-phone').value;
 
     try {
-        await axios.post('http://127.0.0.1:5000/api/customers', {  // Updated the URL to match the correct API endpoint
-            name,
-            email,
-            phone
-        });
+        await axios.post('http://127.0.0.1:5000/api/customers', { name, email, phone });
+        getCustomers(); // Refresh list
 
-        // Refresh the customers list after adding the new customer
-        getCustomers();
-
-        // Clear the form fields
+        // Clear input fields
         document.getElementById('customer-name').value = '';
         document.getElementById('customer-email').value = '';
         document.getElementById('customer-phone').value = '';
@@ -185,7 +160,6 @@ async function addCustomer() {
 }
 
 // Function to delete a customer
-// Function to delete a customer
 async function deleteCustomer(customerId) {
     if (!confirm('Are you sure you want to delete this customer?')) {
         return;
@@ -193,65 +167,99 @@ async function deleteCustomer(customerId) {
 
     try {
         await axios.delete(`http://127.0.0.1:5000/customers/${customerId}`);
-        getCustomers();  // Refresh the customers list
+        getCustomers(); // Refresh customer list
     } catch (error) {
         console.error('Error deleting customer:', error);
         alert('Failed to delete customer');
     }
 }
 
-
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    getCustomers(); // Fetch and display customers when the page loads
-    // Reveal the page smoothly after everything is ready
-    document.documentElement.style.visibility = 'visible';
-    document.body.style.display = 'block';
-});
-
-function loanGame() {
-    console.log("🟢 loanGame() function triggered!");  // Debug 1
-}
-
-  
+// Function to loan a game
 async function loanGame() {
-    const gameId = document.getElementById('game-id').value;
-    const customerId = document.getElementById('customer-id').value;
+    const gameId = document.getElementById('loan-game-id').value;
+    const customerId = document.getElementById('loan-customer-id').value;
 
-    console.log("Sending request with:", gameId, customerId);  // Log the values
+    if (!gameId || !customerId) {
+        alert("Please enter both game ID and customer ID.");
+        return;
+    }
 
     try {
-        const response = await axios.post('http://127.0.0.1:5000/loan', {
-            game_id: gameId,
-            customer_id: customerId
-        });
-        console.log('Response:', response.data);  // Log the response data
+        const response = await axios.post('http://127.0.0.1:5000/loan', { game_id: gameId, customer_id: customerId });
+
         alert(response.data.message);
+
+        // Clear input fields
+        document.getElementById('loan-game-id').value = '';
+        document.getElementById('loan-customer-id').value = '';
+
+        fetchLoans(); // Refresh loans list
     } catch (error) {
         console.error('Error loaning game:', error.response || error);
-        alert('Error loaning game, please try again');
+        alert('Error loaning game, please try again.');
     }
 }
 
-function fetchLoans() {
-    axios.get("/loans")
-    .then(response => {
-        const loanList = document.getElementById("loan-list");
-        loanList.innerHTML = "";
+// Function to fetch active loans
+async function fetchLoans() {
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/loans');
+
+        const loanList = document.getElementById('active-loans-list');
+        loanList.innerHTML = '';
+
         response.data.forEach(loan => {
-            const loanItem = document.createElement("div");
-            loanItem.classList.add("loan-card");
+            const loanItem = document.createElement('div');
+            loanItem.classList.add('loan-card');
             loanItem.innerHTML = `
                 <p><strong>Loan ID:</strong> ${loan.id}</p>
                 <p><strong>Game ID:</strong> ${loan.game_id}</p>
                 <p><strong>Customer ID:</strong> ${loan.customer_id}</p>
                 <p><strong>Loan Date:</strong> ${loan.loan_date}</p>
-                <p><strong>Return Date:</strong> ${loan.return_date || "Not specified"}</p>
+                <p><strong>Return Date:</strong> ${loan.return_date || 'Not specified'}</p>
             `;
             loanList.appendChild(loanItem);
         });
-    })
-    .catch(error => console.error("Error fetching loans:", error));
+    } catch (error) {
+        console.error('Error fetching loans:', error);
+        alert('Failed to load loans.');
+    }
 }
 
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        showMainSection();
+    } else {
+        showAuthSection();
+    }
 
+    document.documentElement.style.visibility = 'visible';
+    document.body.style.display = 'block';
+});
+
+async function returnGame() {
+    const loanId = document.getElementById('return-loan-id').value.trim();
+
+    if (!loanId) {
+        alert('Please enter a valid Loan ID.');
+        return;
+    }
+
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/return', {
+            loan_id: parseInt(loanId)
+        });
+
+        alert(response.data.message);
+
+        // Clear input field
+        document.getElementById('return-loan-id').value = '';
+
+        fetchLoans(); // Refresh the active loans list
+        getGames();   // Refresh the games list to update availability
+    } catch (error) {
+        console.error('Error returning game:', error.response?.data || error);
+        alert(error.response?.data?.error || 'Failed to return game. Please try again.');
+    }
+}

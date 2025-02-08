@@ -54,7 +54,7 @@
                 <div id="customers-list" class="customers-grid"></div>
             </div>
 
-            <!-- Loan Game Section ➡️ Added input validation -->
+            <!-- Loan Game Section ➡️ Fixed onclick and event listener -->
             <div class="loan-section">
                 <h2>Loan a Game</h2>
                 <div class="form-group">
@@ -63,14 +63,14 @@
                     <button id="loan-button">Loan Game</button>
                 </div>
 
-                <!-- ➡️ Updated loans display section -->
+                <!-- Active Loans -->
                 <div class="loans-section">
                     <h2>Active Loans</h2>
                     <div id="active-loans-list" class="loans-grid"></div>
                 </div>
             </div>
 
-            <!-- Return Game Section ➡️ Added input validation -->
+            <!-- Return Game Section -->
             <div class="return-section">
                 <h2>Return a Loaned Game</h2>
                 <div class="form-group">
@@ -84,7 +84,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
 
-    <!-- ➡️ Simplified loan button handler -->
+    <!-- Fix: Properly add event listener -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("loan-button").addEventListener("click", loanGame);
