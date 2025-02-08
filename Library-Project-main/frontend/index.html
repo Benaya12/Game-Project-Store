@@ -1,67 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Library Management System</title>
+    <title>Game Store Management System</title>
     <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <!-- Authentication Section -->
-      <div id="auth-section">
-        <h2>Authentication</h2>
-        <div id="login-form">
-          <!-- Form submission updated to use 'submit' event -->
-          <form id="login-form" onsubmit="login(); return false;">
-            <input type="text" id="username" placeholder="Username" required />
-            <input type="password" id="password" placeholder="Password" required />
-            <button type="submit">Login</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Main Section (Hidden by Default) -->
-      <div id="main-section" class="hidden">
-        <div class="header">
-          <h1>Library Management System</h1>
-          <button onclick="logout()">Logout</button>
+        <!-- Authentication Section -->
+        <div id="auth-section">
+            <h2>Authentication</h2>
+            <form id="login-form" onsubmit="login(); return false;">
+                <input type="text" id="username" placeholder="Username" required />
+                <input type="password" id="password" placeholder="Password" required />
+                <button type="submit">Login</button>
+            </form>
         </div>
 
-        <!-- Games Section -->
-        <div class="games-section">
-          <h2>Add New Game</h2>
-          <div class="form-group">
-            <input type="text" id="game-title" placeholder="Title" />
-            <input type="text" id="game-genre" placeholder="Genre" />
-            <input type="text" id="game-price" placeholder="Price" />
-            <input type="text" id="game-quantity" placeholder="Quantity" />
-            <button onclick="addGame()">Add Game</button>
-          </div>
+        <!-- Main Section (Hidden by Default) -->
+        <div id="main-section" class="hidden">
+            <div class="header">
+                <h1>Game Store Management System</h1>
+                <button onclick="logout()">Logout</button>
+            </div>
 
-          <h2>All Games</h2>
-          <div id="games-list" class="games-grid"></div>
+            <!-- Games Section -->
+            <div class="games-section">
+                <h2>Add New Game</h2>
+                <div class="form-group">
+                    <input type="text" id="game-title" placeholder="Title" />
+                    <input type="text" id="game-genre" placeholder="Genre" />
+                    <input type="number" id="game-price" placeholder="Price" />
+                    <input type="number" id="game-quantity" placeholder="Quantity" />
+                    <button onclick="addGame()">Add Game</button>
+                </div>
 
-          <h2>Loaned Games</h2>
-          <div id="loaned-games-list" class="games-grid"></div>
+                <h2>All Games</h2>
+                <div id="games-list" class="games-grid"></div>
+
+                <h2>Loaned Games</h2>
+                <div id="loaned-games-list" class="games-grid"></div>
+            </div>
+
+            <!-- Customers Section -->
+            <div class="customers-section">
+                <h2>Add New Customer</h2>
+                <div class="form-group">
+                    <input type="text" id="customer-name" placeholder="Name" />
+                    <input type="email" id="customer-email" placeholder="Email" />
+                    <input type="tel" id="customer-phone" placeholder="Phone" />
+                    <button onclick="addCustomer()">Add Customer</button>
+                </div>
+
+                <h2>All Customers</h2>
+                <div id="customers-list" class="games-grid"></div>
+            </div>
         </div>
-
-        <!-- Customers Section -->
-        <div class="customers-section">
-          <h2>Add New Customer</h2>
-          <div class="form-group">
-            <input type="text" id="customer-name" placeholder="Name" />
-            <input type="email" id="customer-email" placeholder="Email" />
-            <input type="tel" id="customer-phone" placeholder="Phone" />
-            <button onclick="addCustomer()">Add Customer</button>
-          </div>
-
-          <h2>All Customers</h2>
-          <div id="customers-list" class="games-grid"></div>
-        </div>
-      </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
-  </body>
+</body>
 </html>

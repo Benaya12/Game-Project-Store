@@ -14,9 +14,10 @@ async function getGames() {
             gameCard.className = 'game-card';
             gameCard.innerHTML = `
                 <h3>${game.title}</h3>
-                <p>Developer: ${game.developer}</p>
-                <p>Year: ${game.year_published}</p>
-                <p>Genre: ${game.genres}</p>
+                <p>Genre: ${game.genre}</p>
+                <p>Price: $${game.price}</p>
+                <p>Quantity: ${game.quantity}</p>
+                <p>Loan Status: ${game.loan_status ? 'Loaned' : 'Available'}</p>
                 <button class="delete-btn" onclick="deleteGame(${game.id})">Delete Game</button>
             `;
             gamesList.appendChild(gameCard);
@@ -30,29 +31,26 @@ async function getGames() {
 // Function to add a new game to the database
 async function addGame() {
     const title = document.getElementById('game-title').value;
-    const developer = document.getElementById('game-developer').value;
-    const year_published = parseInt(document.getElementById('game-year').value);
-    const genres = document.getElementById('game-genre').value;
+    const genre = document.getElementById('game-genre').value;
+    const price = parseFloat(document.getElementById('game-price').value);
+    const quantity = parseInt(document.getElementById('game-quantity').value);
 
     try {
         await axios.post('http://127.0.0.1:5000/games', {
             title,
-            developer,
-            year_published,
-            genres
+            genre,  // Removed 'genres' -> should be 'genre'
+            price,
+            quantity
         });
 
-        // Save login state before refresh
-        sessionStorage.setItem('isLoggedIn', 'true');
-
-        // Refresh the games list without reloading the page
+        // Refresh the games list
         getGames();
 
-        // Clear the form
+        // Clear the form fields
         document.getElementById('game-title').value = '';
-        document.getElementById('game-developer').value = '';
-        document.getElementById('game-year').value = '';
         document.getElementById('game-genre').value = '';
+        document.getElementById('game-price').value = '';
+        document.getElementById('game-quantity').value = '';
 
     } catch (error) {
         console.error('Error adding game:', error);
@@ -129,3 +127,57 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.style.visibility = 'visible';
     document.body.style.display = 'block';
 });
+
+function addCustomer() {
+    const name = document.getElementById('customer-name').value;
+    const email = document.getElementById('customer-email').value;
+    const phone = document.getElementById('customer-phone').value;
+  
+    if (name && email && phone) {
+      const customer = { name, email, phone };
+      // Save the customer (e.g., to localStorage or a backend API)
+      saveCustomer(customer);
+      // Clear the form
+      document.getElementById('customer-name').value = '';
+      document.getElementById('customer-email').value = '';
+      document.getElementById('customer-phone').value = '';
+      // Refresh the customers list
+      displayCustomers();
+    } else {
+      alert('Please fill in all fields.');
+    }
+  }
+  
+  function saveCustomer(customer) {
+    // Example: Save to localStorage
+    const customers = JSON.parse(localStorage.getItem('customers')) || [];
+    customers.push(customer);
+    localStorage.setItem('customers', JSON.stringify(customers));
+  }
+  
+  function displayCustomers() {
+    const customers = JSON.parse(localStorage.getItem('customers')) || [];
+    const customersList = document.getElementById('customers-list');
+    customersList.innerHTML = '';
+  
+    customers.forEach(customer => {
+      const customerCard = document.createElement('div');
+      customerCard.className = 'customer-card';
+      customerCard.innerHTML = `
+        <h3>${customer.name}</h3>
+        <p>Email: ${customer.email}</p>
+        <p>Phone: ${customer.phone}</p>
+        <button class="delete-btn" onclick="deleteCustomer('${customer.email}')">Delete</button>
+      `;
+      customersList.appendChild(customerCard);
+    });
+  }
+  
+  function deleteCustomer(email) {
+    let customers = JSON.parse(localStorage.getItem('customers')) || [];
+    customers = customers.filter(customer => customer.email !== email);
+    localStorage.setItem('customers', JSON.stringify(customers));
+    displayCustomers();
+  }
+  
+  // Call displayCustomers() when the page loads or after login
