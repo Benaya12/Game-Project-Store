@@ -54,24 +54,27 @@
                 <div id="customers-list" class="customers-grid"></div>
             </div>
 
-            <!-- Loan Game Section -->
+            <!-- Loan Game Section ➡️ Added input validation -->
             <div class="loan-section">
                 <h2>Loan a Game</h2>
                 <div class="form-group">
-                    <input type="number" id="loan-game-id" placeholder="Game ID" />
-                    <input type="number" id="loan-customer-id" placeholder="Customer ID" />
-                    <button onclick="loanGame()">Loan Game</button>
+                    <input type="number" id="loan-game-id" placeholder="Game ID" min="1" required>
+                    <input type="number" id="loan-customer-id" placeholder="Customer ID" min="1" required>
+                    <button id="loan-button">Loan Game</button>
                 </div>
 
-                <h2>Loaned Games</h2>
-                <div id="loaned-games-list" class="games-grid"></div>
+                <!-- ➡️ Updated loans display section -->
+                <div class="loans-section">
+                    <h2>Active Loans</h2>
+                    <div id="active-loans-list" class="loans-grid"></div>
+                </div>
             </div>
 
-            <!-- Return Game Section -->
+            <!-- Return Game Section ➡️ Added input validation -->
             <div class="return-section">
                 <h2>Return a Loaned Game</h2>
                 <div class="form-group">
-                    <input type="number" id="return-loan-id" placeholder="Loan ID" />
+                    <input type="number" id="return-loan-id" placeholder="Loan ID" min="1" required>
                     <button onclick="returnGame()">Return Game</button>
                 </div>
             </div>
@@ -80,5 +83,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
+
+    <!-- ➡️ Simplified loan button handler -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("loan-button").addEventListener("click", loanGame);
+        });
+    </script>
 </body>
 </html>

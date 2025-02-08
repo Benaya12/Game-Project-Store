@@ -156,38 +156,44 @@ def get_customers():
     return jsonify(customers_list), 200
 
 # Delete a customer by email
-@app.route('/api/customers/<string:email>', methods=['DELETE'])
-def delete_customer(email):
-    customer = find_customer(email)
-    if not customer:
-        abort(404, description="Customer not found.")
-
-    db.session.delete(customer)
-    db.session.commit()
-    return jsonify({'message': 'Customer deleted successfully'}), 200
-
-# Error handler for 404
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': str(error)}), 404
+@app.route('/customers/<int:customer_id>', methods=['DELETE'])
+def delete_customer(customer_id):
+    try:
+        customer = Customer.query.get_or_404(customer_id)
+        db.session.delete(customer)
+        db.session.commit()
+        return jsonify({'message': 'Customer deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to delete customer',
+            'message': str(e)
+        }), 500
 
 # Error handler for 400
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify({'error': str(error)}), 400
 
-
 @app.route('/loan', methods=['POST'])
 def loan_game():
+    print("🚀 Loan request received")  # Debug log
     data = request.json
+    print("📩 Received data:", data)  # Print received data
+
     game_id = data.get('game_id')
     customer_id = data.get('customer_id')
 
     if not game_id or not customer_id:
+        print("❌ Missing game_id or customer_id")  # Debug log
         return jsonify({"error": "Missing game_id or customer_id"}), 400
 
     game = Game.query.filter_by(id=game_id).first()
-    if not game or game.quantity < 1:
+    if not game:
+        print("❌ Game not found")  # Debug log
+        return jsonify({"error": "Game not found"}), 404
+
+    if game.quantity < 1:
+        print("❌ Game not available")  # Debug log
         return jsonify({"error": "Game not available"}), 400
 
     # Loan game
@@ -195,9 +201,9 @@ def loan_game():
     game.quantity -= 1  # Reduce stock
     db.session.add(new_loan)
     db.session.commit()
-
+    
+    print("✅ Game loaned successfully")  # Debug log
     return jsonify({"message": "Game loaned successfully"}), 201
-
 
 @app.route('/loans', methods=['GET'])
 def get_loans():
@@ -227,6 +233,7 @@ if __name__ == '__main__':
         print("\nTesting GET /admin endpoint:")
         print(f"Response: {get_response.data}")
 
+    
     app.run(debug=True)  # start the flask application in debug mode
 
     # DONT FORGET TO ACTIVATE THE ENV FIRST:

@@ -185,6 +185,7 @@ async function addCustomer() {
 }
 
 // Function to delete a customer
+// Function to delete a customer
 async function deleteCustomer(customerId) {
     if (!confirm('Are you sure you want to delete this customer?')) {
         return;
@@ -192,13 +193,13 @@ async function deleteCustomer(customerId) {
 
     try {
         await axios.delete(`http://127.0.0.1:5000/customers/${customerId}`);
-        // Refresh the customers list after successful deletion
-        getCustomers();
+        getCustomers();  // Refresh the customers list
     } catch (error) {
         console.error('Error deleting customer:', error);
         alert('Failed to delete customer');
     }
 }
+
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
@@ -208,31 +209,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.display = 'block';
 });
 
+function loanGame() {
+    console.log("🟢 loanGame() function triggered!");  // Debug 1
+}
+
   
-  // Call displayCustomers() when the page loads or after login
-  function loanGame() {
-    const gameId = document.getElementById("loan-game-id").value;
-    const customerId = document.getElementById("loan-customer-id").value;
+async function loanGame() {
+    const gameId = document.getElementById('game-id').value;
+    const customerId = document.getElementById('customer-id').value;
 
-    if (!gameId || !customerId) {
-        alert("Please enter both Game ID and Customer ID.");
-        return;
+    console.log("Sending request with:", gameId, customerId);  // Log the values
+
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/loan', {
+            game_id: gameId,
+            customer_id: customerId
+        });
+        console.log('Response:', response.data);  // Log the response data
+        alert(response.data.message);
+    } catch (error) {
+        console.error('Error loaning game:', error.response || error);
+        alert('Error loaning game, please try again');
     }
-
-    axios.post("/loan", {
-        game_id: gameId,
-        customer_id: customerId
-    })
-    .then(response => {
-        alert(response.data.message || "Game successfully loaned!");
-        document.getElementById("loan-game-id").value = "";
-        document.getElementById("loan-customer-id").value = "";
-        fetchLoanedGames(); // Refresh loaned games
-    })
-    .catch(error => {
-        console.error("Loan Error:", error.response ? error.response.data : error);
-        alert(error.response?.data?.error || "Error loaning game. Please try again.");
-    });
 }
 
 function fetchLoans() {
