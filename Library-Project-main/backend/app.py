@@ -250,6 +250,17 @@ def return_game():
     return jsonify({'message': 'Game returned successfully'})
 
 
+@app.route('/loans/reset', methods=['DELETE'])
+def delete_all_loans():
+    try:
+        db.session.query(Loan).delete()  # Delete all records from the loans table
+        db.session.commit()
+        return jsonify({"message": "All loans deleted successfully!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create all database tables defined in your models (check the models folder)

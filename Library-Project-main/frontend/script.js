@@ -263,3 +263,17 @@ async function returnGame() {
         alert(error.response?.data?.error || 'Failed to return game. Please try again.');
     }
 }
+
+async function deleteAllLoans() {
+    if (!confirm("Are you sure you want to delete ALL loans? This cannot be undone!")) return;
+
+    try {
+        const response = await axios.delete("http://127.0.0.1:5000/loans/reset");
+        alert(response.data.message);
+        fetchLoans();  // Refresh the loan list
+    } catch (error) {
+        console.error("Error deleting all loans:", error);
+        alert("Failed to delete all loans.");
+    }
+}
+
